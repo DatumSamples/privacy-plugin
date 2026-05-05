@@ -1,0 +1,16 @@
+Age,City,MaritalStatus,Profession,Income
+25,Boston,Single,Engineer,70000
+25,Boston,Single,Engineer,71000
+26,Boston,Single,Engineer,72000
+26,Boston,Married,Engineer,73000
+27,Boston,Married,Manager,74000
+27,Boston,Married,Manager,74000
+28,New York,Single,Manager,75000
+28,New York,Married,Manager,75000
+29,New York,Married,Executive,80000
+29,New York,Married,Executive,81000
+30,Chicago,Divorced,Executive,82000
+30,Chicago,Divorced,Executive,82000
+31,Chicago,Divorced,Executive,83000
+32,Chicago,Single,Intern,40000
+33,Chicago,Single,Intern,41000

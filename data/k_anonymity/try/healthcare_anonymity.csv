@@ -1,0 +1,14 @@
+Age,Condition,Insurance,Region,Cost
+25,Flu,Aetna,North,150
+25,Flu,Aetna,North,160
+26,Flu,Aetna,North,170
+26,Diabetes,Aetna,North,200
+27,Diabetes,Cigna,North,250
+27,Diabetes,Cigna,South,300
+28,Cancer,Cigna,South,500
+28,Cancer,Cigna,South,520
+29,Cancer,BlueCross,South,540
+29,Cancer,BlueCross,East,550
+30,Allergy,BlueCross,East,100
+31,Allergy,BlueCross,East,110
+32,Allergy,BlueCross,East,120

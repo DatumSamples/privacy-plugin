@@ -1,0 +1,219 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+#main, .privacyModule {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative; 
+} 
+
+h1 {
+    text-align: center;
+    color: #00509e;
+    margin-top: 50px; 
+}
+
+p + ul {
+    margin-top: 5px;
+}
+
+p {
+    margin-bottom: 5px;
+}
+
+.ruleSection {
+    margin-top: 15px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #eaf4fb; 
+    border-left: 5px solid #b0d4f1; 
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.ruleSection:hover {
+    background-color: #d9eaf7; 
+    transform: translateY(-3px);
+}
+
+.moduleSection {
+    margin-top: 15px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #e3f2fd; 
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.moduleSection:hover {
+    background-color: #bbdefb; 
+    transform: translateY(-3px);
+}
+
+ .moduleSection h2 {
+    margin: 0;
+    text-align: center;
+}
+
+.ruleSection h2 {
+    margin: 0;
+    text-align: center;
+}
+
+.differentialButtons{
+    display: flex; 
+    justify-content: center; 
+    gap: 5px; 
+}
+
+button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.backButton {
+    position: absolute; 
+    padding: 5px 15px;
+    top: 20px; 
+    right: 10px; 
+    margin: auto;
+}
+
+input[type=range] {
+   appearance: none; 
+   -webkit-appearance: none; 
+   height: 8px; 
+   background-color: #e3f2fd; 
+   border-radius: 5px; 
+   outline: none; 
+   margin: 10px; 
+}
+
+input[type=range]::-webkit-slider-thumb {
+   appearance: none; 
+   -webkit-appearance: none; 
+   width: 20px; 
+   height: 20px; 
+   border-radius: 50%; 
+   background-color: #007bff; 
+   cursor: pointer; 
+}
+
+input[type=range]::-moz-range-thumb {
+   width: 20px; 
+   height: 20px; 
+   border-radius: 50%; 
+   background-color: #007bff; 
+   cursor: pointer; 
+}
+
+.slider-description {
+    margin-left: 20px; 
+}
+
+label {
+    font-weight: bold;
+    color: #00509e;
+}
+
+label span {
+    font-size: 1.2em;
+}
+
+.distribution-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.distribution-table th,
+.distribution-table td {
+    border: 1px solid black;
+    padding: 10px 20px; 
+    text-align: left; 
+}
+
+.distribution-table th {
+    background-color: #f4f7f6; 
+    font-weight: bold;
+}
+
+.distribution-table tr:nth-child(even) {
+    background-color: #f9f9f9; 
+}
+
+.distribution-table tr:hover {
+    background-color: #eaf4fb; 
+} 
+
+.t-closeness-tooltip {
+    position: absolute;
+    background: #fff;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    pointer-events: none;
+    font-size: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+#tClosenessScatterPlot circle:hover {
+    /* opacity: 90%; */
+    filter: brightness(65%);
+}
+
+#epsilon-input:hover, #sensitivity-input:hover,
+input[type="number"][min][max][step]:hover {
+    border-color: #003d75;  
+}
+
+#epsilon-input, #sensitivity-input, 
+input[type="number"][min][max][step] {
+    width: auto;
+    min-width: 70px;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #00509e;  
+    border-radius: 0.25rem;
+    text-align: center;
+    font-size: 0.875rem;
+    margin-left: 10px;
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: middle;
+    background-color: #f8f9fa;  
+}
+
+#epsilon-input:focus, #sensitivity-input:focus,
+input[type="number"][min][max][step]:focus {
+    border-color: #00509e;  
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(0, 80, 158, 0.25);  
+}
+
+#epsilon-input::-webkit-inner-spin-button, 
+#sensitivity-input::-webkit-inner-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    margin-left: 8px;
+    height: 20px;
+    opacity: 1;
+}

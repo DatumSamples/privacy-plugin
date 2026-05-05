@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Privacy Rules Plugin</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="../common/jquery.js"></script>
+    <script src="../common/iframe-phone.js"></script>
+    <script src="../common/CodapInterface.js"></script>
+    <script src="../common/pluginHelper.js"></script>
+    <script src="privacy.js"></script>
+    <script src="differential.js"></script>
+    <script src="kAnonymity.js"></script>
+    <script src="l_diversity.js"></script>
+    <script src="tCloseness.js"></script>
+    <script>
+        $(function () {
+            startCodapConnection();
+        });
+    </script>
+</head>
+<body>
+
+    <!-- Main Screen -->
+    <div id="main">
+        <h1>Privacy Rules</h1>
+        <div class="ruleSection" onclick="showModule('kAnonymityMainScreen')">
+            <h2>K-Anonymity</h2>
+        </div>
+        <div class="ruleSection" onclick="showModule('lDiversityMainScreen')">
+            <h2>L-Diversity</h2>
+        </div>
+        <div class="ruleSection" onclick="showModule('tClosenessMainScreen')">
+            <h2>T-Closeness</h2>
+        </div>
+        <div class="ruleSection" onclick="showDifferentialModule('differentialMainScreen')">
+            <h2>Differential Privacy</h2>
+        </div>
+    </div>
+
+    <!-- K-Anonymity Main Screen -->
+    <div id="kAnonymityMainScreen" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="showModule('main')">Back</button>
+        <h1>K-Anonymity Modules</h1>
+        <!-- Add more modules here -->
+        <div class="moduleSection" onclick="showModule('kAnonymityIntro')">
+            <h2>Introduction to K-Anonymity</h2>
+        </div>
+        <div class="moduleSection" onclick="showModule('kAnonymityTryItOut')">
+            <h2>Try It Out</h2>
+        </div>
+    </div>
+
+
+    <!-- K-Anonymity Intro Module -->
+    <div id="kAnonymityIntro" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="showModule('kAnonymityMainScreen')">Back</button>
+        <h1>What is K-Anonymity?</h1>
+    
+        <p>
+            K-Anonymity is a foundational privacy principle that ensures each individual in a dataset cannot be distinguished from at least <strong>K - 1</strong> others. It protects against identity disclosure by making individual records indistinguishable within a group.
+        </p>
+    
+        <p>
+            This is particularly important when datasets contain <strong>quasi-identifiers</strong>: combinations of attributes such as <em>age</em>, <em>gender</em>, and <em>zip code</em> that can be used to re-identify individuals even after direct identifiers like names are removed.
+        </p>
+    
+        <h2>How it works</h2>
+        <ul>
+            <li>When you check for <strong>K = 3</strong>, you're verifying whether each combination of selected quasi-identifiers appears in at least three records.</li>
+            <li>If a combination is too rare—say it only shows up once or twice—it does not satisfy the 3-anonymity requirement and may lead to re-identification.</li>
+            <li>This plugin automatically scans the dataset and flags these cases, helping you identify which records fall short of the selected K value.</li>
+        </ul>
+    
+        <h2>Why it matters</h2>
+        <p>
+            K-Anonymity is widely used in data publishing and analysis to provide a measurable privacy guarantee. By ensuring that <em>each combination of quasi-identifiers appears in at least K records</em>, it limits the ability of attackers to isolate individuals.
+        </p>
+    
+        <h2>In summary</h2>
+        <p>
+            K-Anonymity reduces privacy risks by generalizing and grouping records so that individuals cannot be uniquely identified. It is an essential step in preparing datasets for safe sharing or research use.
+        </p>
+    
+        <div class="mt-4">
+            <button class="btn btn-primary" onclick="showModule('kAnonymityTryItOut')">Try It Out</button>
+        </div>
+    </div>
+    
+
+    <!-- K-Anonymity Guided Walkthrough -->
+    <!-- <div id="kAnonymityWalkthrough" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="TryItOutBack()">Back</button>
+        <h1>Guided Walkthrough</h1>
+    
+        <p>This walkthrough uses the actual Try It Out system but limits your options to help you learn the process step by step.</p>
+    
+        <div class="mb-4">
+        <label class="form-label fw-bold">Dataset:</label>
+        <select class="form-select" id="guidedDatasetSelect" disabled>
+            <option selected value="employee_anonymity">Employee Analytics Dataset</option>
+        </select>
+        </div>
+    
+        <div class="mb-4">
+        <label class="form-label fw-bold">Quasi-Identifier:</label>
+        <div>
+            <input type="checkbox" id="qiGuided" checked disabled>
+            <label for="qiGuided">MaritalStatus</label>
+        </div>
+        </div>
+    
+        <div class="mb-4">
+        <label class="form-label fw-bold">K Value: <span id="kValueGuided">4</span></label>
+        <input type="range" id="kSliderGuided" min="4" max="4" value="4" disabled>
+        </div>
+    
+        <div class="mb-4">
+        <button class="btn btn-primary" onclick="runGuidedTryItOut()">Apply</button>
+        <button class="btn btn-secondary ms-2" onclick="resetKAnonymity()">Reset</button>
+        </div>
+    
+        <div id="guidedResultsSection" class="mt-4" style="display:none;">
+        <h3>Preview</h3>
+        <div id="guidedDatasetPreviewTable"></div>
+        <div class="alert alert-info mt-2">✅ = Satisfied | ❌ = Not Satisfied</div>
+        </div>
+    
+        <p class="mt-4">
+        Now try the full version in the <span class="inlineLink" onclick="showModule('kAnonymityTryItOut')"><b>Try It Out</b></span> tab!
+        </p>
+    </div> -->
+  
+    
+    <!-- K-Anonymity Try It Out Module -->
+    <div id="kAnonymityTryItOut" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="TryItOutBack()">Back</button>
+        
+        <h1>K-Anonymity: Try It Out</h1>
+
+        <p>
+            Select a dataset and apply K-Anonymity to explore how it generalizes quasi-identifiers. 
+            Adjust the K value to see its impact on privacy and data utility.
+        </p>
+
+        <!-- Dataset Selection -->
+        <div class="mb-4">
+            <label for="datasetSelectKAnonymity" class="form-label fw-bold">Select Dataset:</label>
+            <select class="form-select" id="datasetSelectKAnonymity" onchange="handleKAnonymityDatasetChange()">
+                <option value="" selected disabled>Choose a dataset...</option>
+                <option value="employee_anonymity">Employee Analytics Dataset</option>
+                <option value="bank_anonymity">Bank Marketing Dataset</option>
+                <option value="healthcare_anonymity">Healthcare Records Dataset</option>
+            </select>
+        </div>
+
+        <!-- Quasi-Identifier Selection (Initially Hidden) -->
+        <div id="variableSelectionKAnonymity" class="mb-4" style="display:none;">
+            <label class="form-label fw-bold">Select Quasi-Identifiers:</label>
+            <div id="quasiIdentifierCheckboxes">
+                <!-- Checkboxes will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- K-Anonymity Parameter Controls (Initially Hidden) -->
+        <div id="parameterControlsKAnonymity" class="mb-4" style="display:none;">
+            <div class="mb-3">
+                <label for="kSliderTryOut" class="form-label">K Value: <span id="kValueTryOut">2</span></label>
+                <input type="range" class="form-range" id="kSliderTryOut" min="2" max="5" step="1" value="2" oninput="updateKValue('kValueTryOut', this.value)">
+            </div>
+
+            <!-- Check, Apply, and Reset Buttons -->
+            <button id="applyButtonKAnonymity" class="btn btn-primary" onclick="applyKAnonymity()">Apply</button>
+            <button id="resetButtonKAnonymity" class="btn btn-secondary ms-2" onclick="resetKAnonymity()">Reset</button>
+        </div>
+
+        <!-- Results Section (Initially Hidden) -->
+        <div id="resultsSectionKAnonymity" class="mt-4" style="display:none;">
+            <h3>Dataset Preview</h3>
+            <div id="datasetPreviewTable"></div>  <!-- This is where the table will be displayed -->
+        </div>
+    </div>
+
+
+    <!-- L-Diversity Main Screen -->
+    <div id="lDiversityMainScreen" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="showModule('main')">Back</button>
+        <h1>L-Diversity Modules</h1>
+        <div class="moduleSection" onclick="showModule('LDiversityIntro')">
+            <h2>Introduction to L-Diversity</h2>
+        </div>
+        <div class="moduleSection" onclick="showModule('LDiversityTryItOut')">
+            <h2>Try It Out</h2>
+        </div>
+    </div>
+
+    <!-- L-Diversity Introduction Module -->
+    <div id="LDiversityIntro" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="showModule('lDiversityMainScreen')">Back</button>
+        <h1>Introduction to L-Diversity</h1>
+        <div>
+            <p>
+                <h2>What is L-Diversity?</h2>
+                L-Diversity is a privacy rule that helps protect people's information by making sure that each group
+                of information has different types of secrets in it. This way, if someone tries to figure out who is
+                in a bucket, it's harder because there are different types of answers mixed together.
+            </p>
+            <p>
+                For Example:
+                    <ul>
+                        <li>
+                            Let's say we have a bucket of health data that includes five people
+                        </li>
+                        <li>
+                            instead of having just one illness type in that bucket (like if everyone has the same cold),
+                            L-Diversity says we should have several differnet illnesses (like a cold, allergies, a sore
+                            throat, etc.).
+                        </li>
+                        <li>
+                            This way, even if you know someone in the group has a cold, you won't know who it is, because
+                            there are other possibilities too.
+                        </li>
+                    </ul>
+            </p>
+            <p>
+                <b>Why does L-Diversity matter?</b> it is important because it makes it much harder for anyone looking at
+                the data to figure out personal details about someone. Even if they try, they can't be sure about which
+                person has what because of the variety.
+            </p>
+            <p>
+                In short, L-Diversity keeps secrets dafe by mixing different types of information in each group, so no one
+                    stands out too easily. It's like making sure that even if you peeked into a group's secret, it's just a mix
+                    of different types of clues, making it tough to single anyone out. Cool, right?
+            </p>
+        </div>
+    </div>
+
+<!-- Try It Out: L-Diversity -->
+    <div id="LDiversityTryItOut" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="showModule('lDiversityMainScreen')">Back</button>
+        
+        <h1>Try L-Diversity</h1>
+        
+        <!-- always visible -->
+        <div>
+        <p>Select a dataset to perform L-Diversity:</p>
+        <label for="datasets">Choose a dataset:</label>
+        <select name="datasets" id="datasets" onchange="updateAttributes()">
+            <option value="" selected disabled>Select one</option>
+            <option value="patient_records">Patient Records</option>
+            <option value="employee_salaries">Employee Salaries</option>
+            <option value="ecommerce_transactions">E-Commerce Transactions</option>
+        </select>
+        </div>
+    
+        <!-- hidden until a dataset is selected -->
+        <div id="ldOptions" style="display:none; margin-top:1em;">
+        <p>Select a sensitive attribute:</p>
+        <label for="sensAtt">Choose a sensitive attribute:</label>
+        <select name="sensAtt" id="sensAtt">
+            <option value="" selected disabled>--</option>
+        </select>
+    
+        <fieldset style="margin-top:1em;">
+            <legend>Select Quasi-Identifiers:</legend>
+            <div id="quasiIdentifiers"></div>
+        </fieldset>
+        
+        <p style="margin-top:1em;">Specify the L-value:</p>
+        <label for="lValue">Enter L (min distinct sensitive values per group):</label>
+        <input type="number" id="lValue" name="lValue" min="2" value="2">
+        
+        <div style="margin-top:1em;">
+            <button class="button" onclick="applyLDiversity()">Apply L-Diversity</button>
+        </div>
+        </div>
+    </div>
+    
+    <script>
+        function updateAttributes() {
+        const sel = document.getElementById('datasets').value;
+        const opts = document.getElementById('ldOptions');
+        const sensAtt = document.getElementById('sensAtt');
+        const qiDiv   = document.getElementById('quasiIdentifiers');
+    
+        // pick your hard‑coded list
+        let attrs = [];
+        if (sel === 'patient_records') {
+            attrs = [
+            'Name','DateOfBirth','Zipcode','Diagnosis',
+            'MedicalExpense','PrescribedMedication',
+            'BloodType','MaritalStatus'
+            ];
+        } else if (sel === 'ecommerce_transactions') {
+            attrs = [
+            'Name','DateOfBirth','Zipcode','PurchaseCategory',
+            'CreditScore','PurchaseAmount','PaymentMethod',
+            'MembershipLevel'
+            ];
+        } else if (sel === 'employee_salaries') {
+            attrs = [
+            'Name','DateOfBirth','Zipcode','Salary',
+            'PerformanceRating','Bonus','JobTitle','YearsAtCompany'
+            ];
+        }
+    
+        // show/hide and populate
+        if (attrs.length) {
+            opts.style.display = 'block';
+    
+            // sensitive‑attribute dropdown
+            sensAtt.innerHTML = attrs
+            .map(a => `<option value="${a}">${a}</option>`)
+            .join('');
+    
+            // quasi‑identifier checkboxes
+            qiDiv.innerHTML = attrs
+            .map(a => `
+                <div>
+                <input type="checkbox" id="qi_${a}" name="quasiIdentifiers" value="${a}">
+                <label for="qi_${a}">${a}</label>
+                </div>
+            `).join('');
+        } else {
+            opts.style.display = 'none';
+            sensAtt.innerHTML = '<option value="" selected disabled>--</option>';
+            qiDiv.innerHTML = '';
+        }
+        }
+    </script>
+
+
+    <!-- T-Closeness Main Screen -->
+    <div id="tClosenessMainScreen" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="showModule('main')">Back</button>
+        <h1>T-Closeness Modules</h1>
+        <p>Before diving into T-Closeness privacy principles, it is highly recommended to first understand the foundations of 
+            <span class="inlineLink" onclick="showModule('kAnonymityMainScreen')">K-Anonymity</span> and 
+            <span class="inlineLink" onclick="showModule('lDiversityMainScreen')">L-Diversity</span>, 
+            as T-Closeness builds upon these essential privacy frameworks.</p>
+        <div class="moduleSection" onclick="showModule('tClosenessIntro')">
+            <h2>Quick Introduction</h2>
+        </div>
+        <!-- Add more modules here -->
+        <div class="moduleSection" onclick="showModule('tClosenessTryItOut')">
+            <h2>Try It Out</h2>
+        </div>
+        <!-- <div class="moduleSection">
+            <h2>Categorical Data Distance Calculation</h2>
+        </div> -->
+    </div>
+
+    <!-- T-Closeness Introduction Module -->
+    <div id="tClosenessIntro" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="showModule('tClosenessMainScreen'); toggleTable('t_closeness_ex1', false); toggleTable('t_closeness_ex2', false); toggleTable('t_closeness_ex3', false);">Back</button>
+        <h1>Introduction to T-Closeness</h1>
+        <h2>Definition</h2>
+        <p>T-Closeness further extends on the concept of k-anonymity by measuring the distance of
+            the distribution of sensitive values between equivalence classes and the original database.
+        </p>
+        <h2>Why we need T-Closeness privacy rules?</h2>
+        <h3>The original dataset</h3>
+        <p>Before discussing why T-Closeness privacy rules are necessary, let's first review the original dataset.</p>
+        <table class='distribution-table'>
+            <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>ZIP</th>
+                <th>Salary</th>
+                <th>Disease</th>
+            </tr>
+            <tr>
+                <td>Alice</td>
+                <td>29</td>
+                <td>47677</td>
+                <td>3000</td>
+                <td>Gastric ulcer</td>
+            </tr>
+            <tr>
+                <td>Bob</td>
+                <td>22</td>
+                <td>47602</td>
+                <td>4000</td>
+                <td>Gastritis</td>
+            </tr>
+            <tr>
+                <td>Charly</td>
+                <td>27</td>
+                <td>47678</td>
+                <td>5000</td>
+                <td>Stomach cancer</td>
+            </tr>
+            <tr>
+                <td>Dave</td>
+                <td>43</td>
+                <td>47905</td>
+                <td>6000</td>
+                <td>Gastritis</td>
+            </tr>
+            <tr>
+                <td>Eve</td>
+                <td>52</td>
+                <td>47909</td>
+                <td>11000</td>
+                <td>Flu</td>
+            </tr>
+            <tr>
+                <td>Ferris</td>
+                <td>47</td>
+                <td>47906</td>
+                <td>8000</td>
+                <td>Bronchitis</td>
+            </tr>
+            <tr>
+                <td>George</td>
+                <td>30</td>
+                <td>47605</td>
+                <td>7000</td>
+                <td>Bronchitis</td>
+            </tr>
+            <tr>
+                <td>Harvey</td>
+                <td>36</td>
+                <td>47673</td>
+                <td>9000</td>
+                <td>Pneumonia</td>
+            </tr>
+            <tr>
+                <td>Iris</td>
+                <td>32</td>
+                <td>47607</td>
+                <td>10000</td>
+                <td>Stomach cancer</td>
+            </tr>
+        </table>
+        <p>Here, the header of each coloum in this table are considers as an
+            <strong><span data-bs-toggle="tooltip" data-bs-title="Identifiers are attributes in a dataset.">identifier</span></strong>
+            .
+        </p>
+    
+        <h3>Remove Unnecessary Identifiers</h3>
+        <p>Names are usually sensitive and not particularly useful for analysis, so we can simply remove the "Name" column.
+            This step is not part of T-Closeness; it's just a straightforward removal.</p>
+        <table class='distribution-table'>
+            <tr>
+                <th>Age</th>
+                <th>ZIP</th>
+                <th>Salary</th>
+                <th>Disease</th>
+            </tr>
+            <tr>
+                <td>29</td>
+                <td>47677</td>
+                <td>3000</td>
+                <td>Gastric ulcer</td>
+            </tr>
+            <tr>
+                <td>22</td>
+                <td>47602</td>
+                <td>4000</td>
+                <td>Gastritis</td>
+            </tr>
+            <tr>
+                <td>27</td>
+                <td>47678</td>
+                <td>5000</td>
+                <td>Stomach cancer</td>
+            </tr>
+            <tr>
+                <td>43</td>
+                <td>47905</td>
+                <td>6000</td>
+                <td>Gastritis</td>
+            </tr>
+            <tr>
+                <td>52</td>
+                <td>47909</td>
+                <td>11000</td>
+                <td>Flu</td>
+            </tr>
+            <tr>
+                <td>47</td>
+                <td>47906</td>
+                <td>8000</td>
+                <td>Bronchitis</td>
+            </tr>
+            <tr>
+                <td>30</td>
+                <td>47605</td>
+                <td>7000</td>
+                <td>Bronchitis</td>
+            </tr>
+            <tr>
+                <td>36</td>
+                <td>47673</td>
+                <td>9000</td>
+                <td>Pneumonia</td>
+            </tr>
+            <tr>
+                <td>32</td>
+                <td>47607</td>
+                <td>10000</td>
+                <td>Stomach cancer</td>
+            </tr>
+        </table>
+    
+        <h3>Apply K-Anonymity and L-Diversity</h3>
+        <p>We have 2 sensitive attribute in this dataset: salary and disease.</p>
+        <p>We anonymize the data and generalize the <strong><span data-bs-toggle="tooltip" data-bs-title="Quasi-identifiers are also attributes in a dataset that, while not unique
+            identifiers on their own,
+            can be combined with other quasi-identifiers to uniquely identify an individual. (Ex. data of birth,
+            first name,
+            last name, and gender)">Quasi-identifiers</span></strong>: Age and Zip</p>
+        <p>Target: 3-anonymity, 3-diversity</p>
+        <table class="distribution-table">
+            <tr>
+                <th>Age</th>
+                <th>ZIP</th>
+                <th>Salary</th>
+                <th>Disease</th>
+            </tr>
+            <tr>
+                <td>20-29</td>
+                <td>476**</td>
+                <td>3000</td>
+                <td>Gastric ulcer</td>
+            </tr>
+            <tr>
+                <td>20-29</td>
+                <td>476**</td>
+                <td>4000</td>
+                <td>Gastritis</td>
+            </tr>
+            <tr>
+                <td>20-29</td>
+                <td>476**</td>
+                <td>5000</td>
+                <td>Stomach cancer</td>
+            </tr>
+            <tr>
+                <td>>40</td>
+                <td>4790*</td>
+                <td>6000</td>
+                <td>Gastritis</td>
+            </tr>
+            <tr>
+                <td>>40</td>
+                <td>4790*</td>
+                <td>11000</td>
+                <td>Flu</td>
+            </tr>
+            <tr>
+                <td>>40</td>
+                <td>4790*</td>
+                <td>8000</td>
+                <td>Bronchitis</td>
+            </tr>
+            <tr>
+                <td>30-39</td>
+                <td>476**</td>
+                <td>7000</td>
+                <td>Bronchitis</td>
+            </tr>
+            <tr>
+                <td>30-39</td>
+                <td>476**</td>
+                <td>9000</td>
+                <td>Pneumonia</td>
+            </tr>
+            <tr>
+                <td>30-39</td>
+                <td>476**</td>
+                <td>10000</td>
+                <td>Stomach cancer</td>
+            </tr>
+        </table>
+    
+        <h3>The issues</h3>
+        <p>If we know the following information about a person:</p>
+        <ul>
+            <li>ZIP: 47623</li>
+            <li>Age: 23</li>
+        </ul>
+        <p>After applying K-Anonymity and L-Diversity privacy rules, we can no longer determine which data point belongs to a specific person. However, we can still infer that the person has stomach issues. T-Closeness addresses this problem by ensuring that sensitive attribute distributions remain similar across equivalence classes, reducing the risk of inference attacks.</p>
+    </div>
+    
+    <div id="tClosenessTryItOut" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="showModule('tClosenessMainScreen')">Back</button>
+        <h1>Try It Out</h1>
+        <p>Select a dataset and to explore how different T values affects the overall data.</p>
+        <form>
+            <div class="mb-3">
+                <label for="datasetSelector">Select Dataset: </label>
+                <select class="form-select" name="datasetSelector" id="t-closeness-dataset-selector">
+                    <option value="">Choose a dataset...</option>
+                    <option value="adult">Adult Dataset</option>
+                    <option value="gpa">Duke Students GPA</option>
+                    <option value="insurance">Medical Cost Personal Datasets</option>
+                </select>
+                <label for="yAxisSelector">Select Y axis: </label>
+                <select class="form-select" name="yAxisSelector" id="t-closeness-yAxisSelector">
+                    <option value="t_closeness">T-Closeness Level</option>
+                    <option value="diversity_level">Diversity Level</option>
+                </select>
+            </div>
+        </form>
+        <p id="current_ds_quasi_ident"></p>
+        <p id="current_ds_ident"></p>
+        <p id="curren_ds_sens_att"></p>
+        <svg id="tClosenessScatterPlot"></svg>
+        <p id="ds_origin" style="font-size:0.6em"></p>
+    </div>
+
+
+    <!-- Differential Privacy Main Screen -->
+    <div id="differentialMainScreen" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="showModule('main')">Back</button>
+        <h1>Differential Privacy Modules</h1>
+        <div class="moduleSection" onclick="showDifferentialModule('differentialNumerical')">
+            <h2>Introduction I: Numerical</h2>
+        </div>
+        <div class="moduleSection" onclick="showDifferentialModule('differentialCategorical')">
+            <h2>Introduction II: Categorical</h2>
+        </div>
+        <div class="moduleSection" onclick="showDifferentialModule('differentialTryItOut')">
+            <h2>Try It Out</h2>
+        </div>
+    </div>
+
+
+     <!-- Differential Privacy: Numerical Module -->
+    <div id="differentialNumerical" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="numericalBack('Age', 'adult_data');">Back</button>
+
+        <h1>Differential Privacy: Numerical</h1>
+
+        <!-- Description -->
+        <div class="mb-4">
+            <p>
+                <b>Differential Privacy</b> is a technique used to protect individual privacy by adding random noise to data. 
+                This ensures that the privacy of individuals is preserved while still allowing useful insights to be drawn from the data. 
+                For numerical data, we use the <b>Laplace Mechanism</b> which adds random noise drawn from a Laplace distribution.
+            </p>
+            <p>The <b>Laplace Mechanism</b> works by adding carefully calibrated random noise to each numerical value. 
+                Which depends on two parameters:</p>
+            <ul class="mb-3">
+                <li><b>Epsilon</b> (privacy budget) - controls the privacy level, where smaller values means stronger privacy guarantees and more noise.</li>
+                <li><b>Sensitivity</b> - represents the maximum change each data point can have on the output.</li>
+            </ul>
+            <p>We will be using a preselected dataset and attribute, <b>Age</b>, where noise will be added to the Age values.
+                An example selection query, <b>"Age >= 40"</b>, is also provided to demonstrate how differential privacy works on a individual data point.</p>
+            <p>Additionally, you can reset everything in the module to it's original state using the <b>Reset</b> button.</p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="mb-4">
+            <h3>Instructions:</h3>
+            <ol>
+                <li class="mb-2">
+                    Adjust the <b>Epsilon</b> and <b>Sensitivity</b> values using the sliders below. 
+                    These values control the amount of noise added to protect privacy.
+                </li>
+                <li>
+                    Click <b>"Apply To Numerical"</b> to apply differential privacy to the <b>Age</b> column and observe the original age vs the noisy age data points and 
+                    compare the original query result and the noisy query result displayed below.
+                </li>
+            </ol>
+        </div>
+
+        <!-- Sliders for Epsilon and Sensitivity -->
+        <div class="mb-3">
+            <label for="epsilonSliderNumerical" class="form-label">Epsilon: <span id="epsilonValueNumerical">0.1</span></label>
+            <input type="number" id = "numerical-epsilon-input" min="0.1" max="5.0" step="0.1" value="0.1" style="width: 50px; margin-left: 10px;" oninput="updateEpsilon('epsilonValueNumerical', this.value)">
+            <input type="range" class="form-range" id="epsilonSliderNumerical" min="0.1" max="5.0" step="0.1" value="0.1" oninput="updateEpsilon('epsilonValueNumerical', this.value)">
+        </div>
+        <div class="mb-3">
+            <label for="sensitivitySliderNumerical" class="form-label">Sensitivity: <span id="sensitivityValueNumerical">1.0</span></label>
+            <input type="number" id = "numerical-sensitivity-input" min="1.0" max="25.0" step="1.0" value="1.0" style="width: 50px; margin-left: 10px;" oninput="updateSensitivity('sensitivityValueNumerical', this.value)">
+            <input type="range" class="form-range" id="sensitivitySliderNumerical" min="1.0" max="25.0" step="1.0" value="1.0" oninput="updateSensitivity('sensitivityValueNumerical', this.value)">
+        </div>
+        <p class="form-text mb-4"><em>Sensitivity is set to 1 for selection queries, but you can adjust it here for demonstration purposes.</em></p>
+
+        <!-- Differential Privacy: Numerical Buttons -->
+        <div class="mb-4">
+            <button class="btn btn-primary" onclick="generateNumericalNoise('adult_data', document.getElementById('epsilonValueNumerical').textContent, document.getElementById('sensitivityValueNumerical').textContent); getNoisyQuery()">Apply To Numerical</button>
+            <button class="btn btn-secondary ms-2" onclick="resetNumerical('adult_data')">Reset</button> 
+        </div>
+
+        <!-- True and Noisy Results Display -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Selection Query Results</h3>
+            </div>
+            <div class="card-body">
+                <p><b>Original Result:</b> <span id="originalResult">N/A</span></p>
+                <p><b>Noisy Result:</b> <span id="noisyResult">N/A</span></p>
+            </div>
+        </div>        
+    </div>
+
+
+    <!-- Categorical Differential Privacy Module -->
+    <div id="differentialCategorical" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="categoricalBack('Relationship', 'adult_data');">Back</button>
+
+        <h1>Differential Privacy: Categorical</h1>
+
+        <!-- Description -->
+        <div class="mb-4">
+            <p>
+                In this module, you will explore how differential privacy works with categorical data.
+                We use the <b>Exponential Mechanism</b>, which assigns probabilities to each category based on 
+                how common they are in the original data, but adds randomness to protect privacy.
+            </p>
+            <p>The <b>Exponential Mechanism</b> works by:</p>
+            <ul class="mb-3">
+                <li>Computing a score for each possible category based on its frequency in the dataset.</li>
+                <li>Using these scores to assign selection probabilities that preserve privacy.</li>
+                <li>Randomly selecting categories according to these privacy preserving probabilities.</li>
+            </ul>
+            <p>
+                We will be using a preselected dataset, <b>adult_data</b>, and attribute, <b>Relationship</b>, where noise will be applied to the Relationship column 
+                using the Exponential mechanism, allowing you to compare the original distribution with a privacy preserving noisy distribution.
+            </p>
+            <p>Additionally, you can reset everything in the module to it's original state using the <b>Reset</b> button.</p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="mb-4">
+            <h3>Instructions:</h3>
+            <ol>
+                <li class="mb-2">
+                    Adjust the <b>Epsilon</b> and <b>Sensitivity</b> values using the sliders below.
+                    The Exponential Mechanism uses these parameters to determine selection probabilities for each category.
+                </li>
+                <li>
+                    Click <b>Apply To Categorical</b> to apply differential privacy to the <b>Relationship</b> column
+                    and observe how it alters the distribution in the graph and the table below.
+                </li>
+            </ol>
+        </div>
+
+        <!-- Sliders for Epsilon and Sensitivity -->
+        <div class="mb-3">
+            <label for="epsilonSliderCategorical" class="form-label">Epsilon: <span id="epsilonValueCategorical">0.1</span></label>
+            <input type="number" id = "categorical-epsilon-input" min="0.1" max="5.0" step="0.1" value="0.1" style="width: 50px; margin-left: 10px;" oninput="updateEpsilon('epsilonValueCategorical', this.value)">
+            <input type="range" class="form-range" id="epsilonSliderCategorical" min="0.1" max="5.0" step="0.1" value="0.1" oninput="updateEpsilon('epsilonValueCategorical', this.value)">
+        </div>
+        <div class="mb-3">
+            <label for="sensitivitySliderCategorical" class="form-label">Sensitivity: <span id="sensitivityValueCategorical">1.0</span></label>
+            <input type="number" id = "categorical-sensitivity-input" min="1.0" max="25.0" step="1.0" value="1.0" style="width: 50px; margin-left: 10px;" oninput="updateSensitivity('sensitivityValueCategorical', this.value)">
+            <input type="range" class="form-range" id="sensitivitySliderCategorical" min="1.0" max="25.0" step="1.0" value="1.0" oninput="updateSensitivity('sensitivityValueCategorical', this.value)">
+        </div>
+
+        <!-- Differential Privacy: Categorical Buttons -->
+        <div class="mb-4">
+            <button class="btn btn-primary" onclick="generateCategoricalNoise('Relationship', 'adult_data', document.getElementById('epsilonValueCategorical').textContent, document.getElementById('sensitivityValueCategorical').textContent)">Apply To Categorical</button>
+            <button class="btn btn-secondary ms-2" onclick="resetCategorical('Relationship', 'adult_data')">Reset</button> 
+        </div>
+
+        <!-- Single Table Displaying Both Original and Noisy Distributions -->
+        <h3>Categorical Distribution Table</h3>
+        <div id="distributionTable"></div>
+    </div>
+
+
+    <!-- Try It Out Differential Privacy Module -->
+    <div id="differentialTryItOut" class="privacyModule" style="display:none;">
+        <button class="backButton" onclick="DiffTryItOutBack()">Back</button>
+        
+        <h1>Differential Privacy: Try It Out</h1>
+        <div class="mb-4">
+            <p>
+                Explore how differential privacy affects various datasets and variables<b>:</b>
+            </p>
+            <ol class="mb-3">
+                <li>Select a dataset from the dropdown menu</li>
+                <li>Choose a variable (numerical or categorical) to apply privacy to</li>
+                <li>Click <b>Start</b> to initialize the graph and table</li>
+                <li>Adjust the <b>Epsilon</b> and <b>Sensitivity</b> values using the sliders or input box</li>
+                <li>Click <b>Apply Privacy</b> to see the privacy-utility trade-off</li>
+                <li>Use <b>Reset</b> to restore original values of the graph and table</li>
+            </ol>
+        </div>
+        
+        <!-- Dataset Selection -->
+        <div class="mb-4">
+            <label for="datasetSelect" class="form-label fw-bold">Select Dataset:</label>
+            <select class="form-select" id="datasetSelect" onchange="handleDatasetChange()">
+                <option value="" selected disabled>Choose a dataset...</option>
+                <option value="adult_data">Adult Census Data</option>
+                <option value="bank_marketing">Bank Marketing</option>
+                <option value="employee_analytics">Employee Analytics</option>
+                <option value="titanic">Titanic Passengers Data</option>
+                <option value="hr_employee_attrition">HR Employee Attrition</option>
+                <option value="students_performance">Student Performance</option>
+                <option value="hr_employee_data">HR Employee Data</option>
+            </select>
+        </div>
+        
+        <!-- Variable Selection (Initially Hidden) -->
+        <div id="variableSelection" class="mb-4" style="display:none;">
+            <label for="variableSelect" class="form-label fw-bold">Select Variable:</label>
+            <div class="position-relative">
+                <select class="form-select" id="variableSelect" onchange="handleAttributeChange()">
+                <!-- Options will be populated dynamically -->
+                </select>
+                <div id="variableTooltip" class="tooltip" style="display:none;"></div>
+            </div>
+        </div>
+        
+        <!-- Parameter Controls (Initially Hidden) -->
+        <div id="parameterControls" class="mb-4" style="display:none;">
+            <!-- Sliders for Epsilon and Sensitivity -->
+            <div class="mb-3">
+                <label for="epsilonSliderTryOut" class="form-label">Epsilon: <span id="epsilonValueTryOut">0.1</span></label>
+                <input type="number" id="try-epsilon-input" min="0.1" max="5.0" step="0.1" value="0.1" style="width: 50px; margin-left: 10px;" oninput="updateEpsilon('epsilonValueTryOut', this.value)">
+                <input type="range" class="form-range" min="0.1" max="5.0" step="0.1" value="0.1" id="epsilonSliderTryOut" oninput="updateEpsilon('epsilonValueTryOut', this.value)">
+
+            </div>
+            <div class="mb-3">
+                <label for="sensitivitySliderTryOut" class="form-label">Sensitivity: <span id="sensitivityValueTryOut">1.0</span></label>
+                <input type="number" id="try-sensitivity-input" min="1.0" max="25.0" step="1.0" value="1.0" style="width: 50px; margin-left: 10px;" oninput="updateSensitivity('sensitivityValueTryOut', this.value)">
+                <input type="range" class="form-range" min="1.0" max="25.0" step="1.0" value="1.0" id="sensitivitySliderTryOut" oninput="updateSensitivity('sensitivityValueTryOut', this.value)">
+            </div>
+
+            <!-- Differential Privacy: Try It Out Buttons -->
+            <button id="startButtonTryOut" class="btn btn-success me-2" onclick="initializeDifferentialTryOut()">Start</button>
+            <button id="applyButtonTryOut" class="btn btn-primary" onclick="applyDifferentialTryOut()">Apply Privacy</button>
+            <button id="resetButtonTryOut" class="btn btn-secondary ms-2" onclick="resetTryItOut()">Reset</button>    
+        </div>
+        
+        <!-- Results Section (Initially Hidden) -->
+        <div id="resultsSection" class="mt-4" style="display:none;">
+            <!-- Content will be populated based on data type -->
+        </div>
+    </div>
+    
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
+</body>
+</html>

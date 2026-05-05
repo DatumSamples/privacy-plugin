@@ -1,0 +1,20 @@
+Name,DateOfBirth,Zipcode,Diagnosis,MedicalExpense,PrescribedMedication,BloodType,MaritalStatus
+Alice,1985-07-12,10001,Diabetes,5000,Metformin,O,Single
+Bob,1990-03-25,10002,Hypertension,1200,Lisinopril,A,Married
+Charlie,1982-11-30,10001,Diabetes,4500,Insulin,B,Single
+David,1975-06-15,10002,Cancer,15000,Chemotherapy,AB,Married
+Emma,1992-09-08,10001,Hypertension,1300,Atenolol,O,Single
+Frank,1988-04-22,10003,Cancer,16000,Radiation Therapy,A,Divorced
+Grace,1995-01-19,10003,Diabetes,4800,Metformin,B,Single
+Hank,1970-12-05,10001,Hypertension,1100,Losartan,AB,Married
+Ivy,1983-08-14,10002,Diabetes,5200,Insulin,O,Single
+Jack,1991-05-27,10003,Cancer,14000,Chemotherapy,A,Divorced
+Luna,1996-03-12,10004,Diabetes,5300,Metformin,B,Single
+Owen,1989-07-30,10004,Hypertension,1000,Atenolol,AB,Married
+Ethan,1978-05-18,10005,Cancer,17000,Radiation Therapy,O,Single
+Zoe,1984-02-25,10005,Diabetes,4600,Insulin,A,Divorced
+Sophia,1993-09-17,10004,Hypertension,1150,Losartan,B,Married
+Ryan,1986-02-10,10006,Cancer,15500,Chemotherapy,O,Single
+Leah,1990-08-21,10007,Diabetes,4900,Insulin,AB,Married
+Michael,1979-06-12,10008,Hypertension,1250,Atenolol,B,Single
+Ella,1997-04-19,10009,Cancer,13500,Radiation Therapy,O,Married

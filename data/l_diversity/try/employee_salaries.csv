@@ -1,0 +1,21 @@
+Name,DateOfBirth,Zipcode,Salary,PerformanceRating,Bonus,JobTitle,YearsAtCompany
+Liam,1980-10-10,90210,75000,Excellent,5000,Software Engineer,10
+Noah,1995-12-15,10011,82000,Good,3000,Data Analyst,4
+Olivia,1990-03-05,90210,75000,Average,2000,Marketing Specialist,7
+Emma,1987-07-20,10011,91000,Excellent,7000,Project Manager,12
+Ava,1993-01-25,10012,75000,Good,3500,Software Engineer,5
+Sophia,1998-05-30,10012,86000,Poor,1500,HR Manager,2
+Isabella,1992-08-14,10013,91000,Excellent,6000,Data Scientist,8
+Mason,1985-06-10,90210,86000,Good,4500,Software Engineer,9
+James,1978-11-22,10011,82000,Poor,1800,Marketing Specialist,14
+Benjamin,1984-09-18,10012,91000,Average,5000,Project Manager,11
+Lucas,1996-07-05,10013,78000,Good,3200,Data Analyst,3
+Elijah,1991-04-23,90211,89000,Excellent,6800,Data Scientist,6
+Mia,1983-10-30,10014,95000,Poor,2500,HR Manager,13
+Charlotte,1997-06-12,10015,72000,Average,2800,Software Engineer,2
+Daniel,1989-08-20,10016,93000,Good,5400,Product Manager,7
+Ethan,1986-12-07,10017,87000,Excellent,6200,IT Manager,9
+Harper,1994-05-25,10018,88000,Good,4600,UX Designer,5
+Henry,1982-02-17,10019,91000,Average,5100,Finance Analyst,12
+Aria,1999-01-31,10020,74000,Poor,1700,Marketing Specialist,1
+Oliver,1993-07-22,10021,92000,Excellent,7300,Software Engineer,6

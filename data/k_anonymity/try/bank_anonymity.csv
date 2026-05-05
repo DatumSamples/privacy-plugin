@@ -1,0 +1,14 @@
+Age,Education,JobType,Region,Balance
+25,Graduate,Clerk,North,2000
+25,Graduate,Clerk,North,2100
+26,Graduate,Clerk,North,2200
+26,Graduate,Manager,North,3000
+27,Graduate,Manager,North,3100
+27,Postgrad,Manager,South,4000
+28,Postgrad,Manager,South,4100
+29,Postgrad,Executive,South,5000
+29,Postgrad,Executive,South,5100
+30,Postgrad,Executive,East,5200
+31,HighSchool,Executive,East,5300
+32,HighSchool,Intern,East,1000
+33,HighSchool,Intern,East,1200
