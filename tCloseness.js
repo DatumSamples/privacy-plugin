@@ -71,11 +71,24 @@ document.addEventListener("DOMContentLoaded", () => {
         .attr("class", "y-axis-label")
         .attr("text-anchor", "middle")
         .attr("transform", `translate(15, ${margin.top + innerHeight / 2}) rotate(-90)`)
-        .text("T-Closeness Level");
+        .text("Distance from Original");
+
+    // Convert the original t-closeness score so that:
+    // 0 means closer to the original dataset
+    // 1 means farther from the original dataset
+    // This preserves the [0, 1] bound while reversing the interpretation.
+    const distanceFromOriginal = t => 1 - t;
+
+    function getYValue(d, yAxisField) {
+        if (yAxisField === "t_closeness") {
+            return distanceFromOriginal(d.t_closeness);
+        }
+        return +d[yAxisField];
+    }
 
     // Color scale
     const colorScale = d3.scaleSequential()
-        .domain([0, 1]) // t_closeness range
+        .domain([0, 1])
         .interpolator(d3.interpolateOranges);
 
     // Radius scale
@@ -86,7 +99,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function drawColorLegend() {
         const legendWidth = 15;
         const legendHeight = 150;
-        const legendMargin = 10;
 
         const legendGroup = svg.append("g")
             .attr("transform", `translate(${width - margin.right + 20}, ${margin.top})`);
@@ -128,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .attr("y", -8)
             .attr("font-size", 11)
             .attr("text-anchor", "start")
-            .text("T-Closeness");
+            .text("Distance");
     }
 
     let currentDataContextName = null;
@@ -136,11 +148,11 @@ document.addEventListener("DOMContentLoaded", () => {
     
     function drawScatterPlot(data, datasetFolder, yAxisField) {
         const xScale = d3.scaleLinear()
-            .domain(d3.extent(data, d => 1-d.anonymity_level)).nice()
+            .domain(d3.extent(data, d => +d.anonymity_level)).nice()
             .range([0, innerWidth]);
     
         const yScale = d3.scaleLinear()
-            .domain(d3.extent(data, d => +d[yAxisField])).nice()
+            .domain(d3.extent(data, d => getYValue(d, yAxisField))).nice()
             .range([innerHeight, 0]);
     
         xAxisGroup
@@ -167,22 +179,22 @@ document.addEventListener("DOMContentLoaded", () => {
         dots.transition()
             .duration(600)
             .attr("cx", d => xScale(+d.anonymity_level))
-            .attr("cy", d => yScale(+d[yAxisField]))
-            .attr("fill", d => colorScale(1-d.t_closeness))
-            .attr("r", d => radiusScale(1-d.t_closeness));
+            .attr("cy", d => yScale(getYValue(d, yAxisField)))
+            .attr("fill", d => colorScale(distanceFromOriginal(d.t_closeness)))
+            .attr("r", d => radiusScale(distanceFromOriginal(d.t_closeness)));
     
         dots.enter()
             .append("circle")
             .attr("cx", d => xScale(+d.anonymity_level))
-            .attr("cy", d => yScale(+d[yAxisField]))
+            .attr("cy", d => yScale(getYValue(d, yAxisField)))
             .attr("r", 0)
-            .attr("fill", d => colorScale(1-d.t_closeness))
+            .attr("fill", d => colorScale(distanceFromOriginal(d.t_closeness)))
             .on("mouseover", (event, d) => {
                 tooltip.style("opacity", 1)
                     .html(`
                         <strong>Anonymity:</strong> ${d.anonymity_level}<br/>
                         <strong>Diversity:</strong> ${d.diversity_level}<br/>
-                        <strong>T-Closeness:</strong> ${1-d.t_closeness.toFixed(4)}
+                        <strong>Distance from Original:</strong> ${distanceFromOriginal(d.t_closeness).toFixed(4)}
                     `)
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 28) + "px");
@@ -212,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .transition()
             .duration(500)
-            .attr("r", d => radiusScale(1-d.t_closeness));
+            .attr("r", d => radiusScale(distanceFromOriginal(d.t_closeness)));
     }
 
     async function loadAndDraw(datasetFolder, yAxisField) {
@@ -223,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
             dataset_new_id: d.dataset_new_id,
             anonymity_level: +d.anonymity_level,
             diversity_level: +d.diversity_level,
-            t_closeness: 1-d.t_closeness
+            t_closeness: +d.t_closeness
         }));
         drawScatterPlot(data, datasetFolder, yAxisField);
     
@@ -233,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
         // Update y-axis label
         svg.select(".y-axis-label")
-            .text(yAxisField === "diversity_level" ? "Diversity Level" : "T-Closeness Level");
+            .text(yAxisField === "diversity_level" ? "Diversity Level" : "Distance from Original");
     }
 
     function showDatasetMetadata(datasetName) {
@@ -256,14 +268,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 sens_att: 'charges',
                 url: 'https://www.kaggle.com/datasets/mirichoi0218/insurance'
             }
-        }
-        document.querySelector('#current_ds_quasi_ident').innerHTML = `<strong>Quasi-Identifier(s):</strong> ${metadata[datasetName].quasi_ident}`
+        };
+        document.querySelector('#current_ds_quasi_ident').innerHTML = `<strong>Quasi-Identifier(s):</strong> ${metadata[datasetName].quasi_ident}`;
         document.querySelector('#current_ds_ident').innerHTML = `<strong>Identifier(s):</strong> ${metadata[datasetName].ident}`;
         document.querySelector('#curren_ds_sens_att').innerHTML = `<strong>Sensitive Attribute(s):</strong> ${metadata[datasetName].sens_att}`;
         document.querySelector('#ds_origin').innerHTML = `Original dataset available at: <a href="${metadata[datasetName].url}" target="_blank">${metadata[datasetName].url}</a>`;
     }
 
-    
     async function updateChartFromSelections() {
         const selectedDatasetName = document.querySelector('#t-closeness-dataset-selector').value;
         const selectedYAxis = document.querySelector('#t-closeness-yAxisSelector').value;
@@ -275,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (selectedDatasetName !== previousDatasetName) {
                 try {
                     await deleteDataContext("original");
-                    await loadTClosenessCSVData(datasetFolder = selectedDatasetName, datasetName = "original.csv");
+                    await loadTClosenessCSVData(selectedDatasetName, "original.csv");
                     showDatasetMetadata(selectedDatasetName);
                     previousDatasetName = selectedDatasetName;
 
