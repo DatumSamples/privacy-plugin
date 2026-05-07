@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     function drawScatterPlot(data, datasetFolder, yAxisField) {
         const xScale = d3.scaleLinear()
-            .domain(d3.extent(data, d => +d.anonymity_level)).nice()
+            .domain(d3.extent(data, d => 1-d.anonymity_level)).nice()
             .range([0, innerWidth]);
     
         const yScale = d3.scaleLinear()
@@ -168,21 +168,21 @@ document.addEventListener("DOMContentLoaded", () => {
             .duration(600)
             .attr("cx", d => xScale(+d.anonymity_level))
             .attr("cy", d => yScale(+d[yAxisField]))
-            .attr("fill", d => colorScale(d.t_closeness))
-            .attr("r", d => radiusScale(d.t_closeness));
+            .attr("fill", d => colorScale(1-d.t_closeness))
+            .attr("r", d => radiusScale(1-d.t_closeness));
     
         dots.enter()
             .append("circle")
             .attr("cx", d => xScale(+d.anonymity_level))
             .attr("cy", d => yScale(+d[yAxisField]))
             .attr("r", 0)
-            .attr("fill", d => colorScale(d.t_closeness))
+            .attr("fill", d => colorScale(1-d.t_closeness))
             .on("mouseover", (event, d) => {
                 tooltip.style("opacity", 1)
                     .html(`
                         <strong>Anonymity:</strong> ${d.anonymity_level}<br/>
                         <strong>Diversity:</strong> ${d.diversity_level}<br/>
-                        <strong>T-Closeness:</strong> ${d.t_closeness.toFixed(4)}
+                        <strong>T-Closeness:</strong> ${1-d.t_closeness.toFixed(4)}
                     `)
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 28) + "px");
@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .transition()
             .duration(500)
-            .attr("r", d => radiusScale(d.t_closeness));
+            .attr("r", d => radiusScale(1-d.t_closeness));
     }
 
     async function loadAndDraw(datasetFolder, yAxisField) {
@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
             dataset_new_id: d.dataset_new_id,
             anonymity_level: +d.anonymity_level,
             diversity_level: +d.diversity_level,
-            t_closeness: +d.t_closeness
+            t_closeness: 1-d.t_closeness
         }));
         drawScatterPlot(data, datasetFolder, yAxisField);
     
